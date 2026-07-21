@@ -568,6 +568,53 @@ code {
 
 .card p { margin: 0; font-size: 0.98rem; line-height: 1.55; color: var(--ink-soft); }
 
+/* The one project that gets room to explain itself. */
+.card--feature {
+  grid-column: 1 / -1;
+  border-color: var(--contour);
+  background: rgba(255, 255, 255, 0.62);
+  padding: 1.9rem 2rem 1.6rem;
+}
+
+.card__flag {
+  font-family: var(--font-mono);
+  font-size: 0.66rem !important;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--signal) !important;
+  margin: 0 0 0.7rem !important;
+}
+
+.card--feature h3 {
+  font-size: clamp(1.4rem, 2.4vw, 1.85rem);
+  margin-bottom: 0.85rem;
+}
+
+.card--feature .card__lead {
+  font-size: 1.08rem;
+  color: var(--ink);
+}
+
+.card--feature p + p { margin-top: 0.85rem; }
+.card--feature p:not(.card__flag):not(.card__meta) { max-width: 62ch; }
+
+/* Wide screens: let the two paragraphs sit side by side so the card fills. */
+@media (min-width: 950px) {
+  .card--feature {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 3rem;
+    align-content: start;
+  }
+
+  .card--feature > .card__flag,
+  .card--feature > h3,
+  .card--feature > .card__meta { grid-column: 1 / -1; }
+
+  .card--feature p + p { margin-top: 0; }
+  .card--feature p:not(.card__flag):not(.card__meta) { max-width: none; }
+}
+
 .card__meta {
   margin-top: auto;
   padding-top: 1rem;

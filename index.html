@@ -113,6 +113,20 @@
             <li>Led the design of Auckland Council's Modern Data Platform, centralising data assets for scale and governance.</li>
             <li>Spearheaded spatial data integration for the Strategic Spatial Modelling programme, shaping the geospatial architecture behind evidence-based urban planning.</li>
             <li>Built dbt, Snowflake and Fivetran pipelines — including automated ingestion of LINZ land parcels via WFS changesets, keeping council-wide spatial analysis current.</li>
+            <li>Introduced and rolled out AI-assisted development tooling across the engineering team, setting the standards and workflows for its use.</li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="role">
+        <div class="role__when"><span class="role__years">2025 — now</span></div>
+        <div class="role__body">
+          <h3 class="role__title">Associate</h3>
+          <p class="role__org">Principal Economics <span class="role__sep">·</span> Auckland</p>
+          <ul class="ticks">
+            <li>Built the Health Vulnerability and Adaptation dashboard for the Ministry of Health — an R Shiny and Plumber application modelling climate-change health impacts and adaptation options across New Zealand.</li>
+            <li>Applied Treasury CBAx cost-benefit methodology, including declining discount rates, to cost adaptation scenarios down to SA2 level.</li>
+            <li>Engineering on the Cost Intelligence Platform.</li>
           </ul>
         </div>
       </li>
@@ -264,10 +278,23 @@
 
     <div class="work">
 
-      <article class="card">
-        <h3><a href="https://github.com/phildonovan/eolas-data">eolas</a></h3>
-        <p>A clean statistical data platform for New Zealand, Australian and OECD data — 700+ datasets behind one API, with Python and R clients and a CLI. Singer taps into Iceberg on S3, served by FastAPI.</p>
-        <p class="card__meta">Python · R · Iceberg · FastAPI · AWS</p>
+      <article class="card card--feature">
+        <p class="card__flag">Building now</p>
+        <h3><a href="https://eolas.fyi">eolas</a></h3>
+        <p class="card__lead">
+          Official statistics for New Zealand, Australia and the OECD are scattered across
+          dozens of portals, each with its own formats and quirks. eolas puts 700+ datasets
+          behind a single typed API — clean columns, consistent schemas, no merged Excel
+          headers.
+        </p>
+        <p>
+          I built the whole stack: Singer-spec taps and a Meltano orchestration layer landing
+          data as Iceberg tables on S3 and Glue, exposed through a FastAPI service on AWS, with
+          first-class <a href="https://github.com/phildonovan/eolas-data">Python</a> and
+          <a href="https://github.com/phildonovan/eolas-r">R</a> clients, a CLI, and a
+          Snowflake share for warehouse users.
+        </p>
+        <p class="card__meta">Python · R · Singer · Meltano · Iceberg · FastAPI · Snowflake · AWS</p>
       </article>
 
       <article class="card">
