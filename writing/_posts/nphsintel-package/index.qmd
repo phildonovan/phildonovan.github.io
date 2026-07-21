@@ -1,0 +1,90 @@
+---
+title: "Enhancing Efficiency and Accuracy with the `nphsintel` R Package"
+subtitle: "The value of in-house R packages (greater than 75% code reduction)"
+author: "Phil Donovan"
+date: "2024-05-16"
+categories: [code, package, object-orientation, immunisations, healthnz]
+image: "nphsintel-logo.png"
+draft: false
+---
+
+In today's rapidly evolving healthcare environment, efficiency and accuracy are paramount. This is especially true for teams managing critical data, such as the immunisations team at HealthNZ. When I joined this team, it was clear that significant improvements were needed to enhance the quality and consistency of our work. The team was plagued by varied results, frequent mistakes, and cumbersome scripts. This led to a bad reputation and a high turnover of personnel.
+
+## The Challenge
+
+Our immunisations data is stored in a Snowflake database, and individual analysts were responsible for writing their own SQL queries for every task. These queries were often complex, and due to the verbose nature of SQL, maintaining standards and ensuring consistency was a significant challenge. Compounding this issue was the transition to the new Aotearoa Immunisation Register (AIR), an upgrade from the previous immunisation databases. This migration further complicated our data management and analysis processes.
+
+In addition to this challenge, we also had to *repeat* relatively complex 
+patterns that can easily be performed incorrectly such as calculating age in different
+units (weeks, months, years) or at different points in time.
+All of these challenges added up and made our job more difficult that what it 
+had to be.
+
+## The Solution: `nphsintel`
+
+To address these challenges, I developed the `nphsintel` R package. This package provides functions that call a base SQL query to access commonly needed data, along with flags (e.g., `include_overseas=TRUE`) that allow analysts to include optional parameters. This standardisation meant that all our reports were built using the same foundational data blocks. As a result, when data changes occurred during the migration to AIR, we only needed to update a single function (`load_vax_events()`), and the changes would propagate throughout all our reports.
+
+With the `load_vax_events()` function, the starting point for our scripts became:
+
+```{r, load-example, eval=FALSE}
+# Load vaccine data
+mmr_events <- load_vax_events(vax = "mmr", include_overseas=FALSE, include_deceased=FALSE)
+```
+
+This function performs a SQL query (200 lines), code-reviewed and checked that performs 
+exactly what the analyst needs. 
+That's 200 lines that we don't need to review for every script we wrote.
+
+## Leveraging dbplyr for Efficiency
+
+One of the key features of `nphsintel` is its use of `dbplyr` under the hood. This enabled us to perform a significant amount of analysis on the SQL side without having to transfer large datasets into R. This greatly reduced the data transfer load from Snowflake to R, improving the speed of our data summarisation processes. Additionally, I developed simple wrappers, such as `attach_person_attributes()`, which streamlined operations like left joins, making common tasks much easier and more efficient.
+
+For example, our common workflow was to pull in the vaccine data, add some 
+details about each individual (ethnicity, location), calculate their age, and then
+summarise. 
+With `dbplyr` and these functions the workflow became:
+
+```{r, dplyr-tooling, eval=FALSE}
+load_vax_events(vax = "mmr", include_overseas=FALSE, include_deceased=FALSE) |> 
+  attach_person_details(cols = "ethnicity") |> 
+  add_age() |> 
+  group_by(ethnicity, age) |> 
+  tally()
+```
+
+Again, all of these function were peer-reviewed and tested in the package, 
+and it made our code creation and reviewing much quicker. 
+It also meant that we had small, simple building blocks in which we could easily 
+construct complex but efficient and simple data pipelines for our analyses.
+
+## Handling Polymorphism with R's S3 System
+
+Vaccines vary widely in their characteristics and behaviors. For instance, the Measles, Mumps, and Rubella (MMR) vaccine requires only two completed doses for full vaccination, whereas the flu vaccine is annual, and you are not considered vaccinated if you haven't received it in the current year. This variability is a classic case of polymorphism in data. R's S3 object orientation system allowed us to implement this polymorphism seamlessly. Our common summary function, `summarise_vax_person()`, produced different outputs depending on whether it was passed an MMR or an Influenza vaccine dataframe, adapting its behavior based on the data it received.
+
+## Real-World Impact
+
+All these functions work seamlessly on either the SQL or R side, depending on the analyst's needs. The combination of `dplyr` and `dbplyr` provided a powerful, safe, and efficient way to handle SQL databases within the tidyverse framework. Even after my contract ended, the Principal of the Immunisations team shared how he was able to rewrite an old script using the `nphsintel` package, reducing the code by 75%. This reduction in code not only improved productivity but also greatly enhanced the code review process. Since the functions had already been peer-reviewed, the speed of code reviews improved significantly.
+
+## Doing More with Less
+
+In times of budget cuts and lean operations, the ability to do more with less is crucial. The `nphsintel` package exemplifies this principle. It significantly boosted the productivity of the team, even as we reduced staff. The streamlined processes, standardised functions, and efficient data handling enabled the team to maintain high standards of accuracy and efficiency despite the challenges.
+For example, in a recent message from the Principal Analyst of the team, I was informed that
+the 
+
+> solutions provided by `nphsintel` had reduced his script by 75% 
+
+and greatly enhanced code review (the functions are already peer-reviewed before 
+going in the package).
+
+The `nphsintel` R package has been a game-changer for the immunisations team at HealthNZ, demonstrating how innovative solutions can transform workflows, enhance productivity, and ensure data accuracy in a demanding healthcare environment.
+
+## Explore Custom Solutions with Us
+
+Interested in enhancing your data analysis workflows or developing in-house tools tailored to your specific needs? Whether you are looking to improve efficiency, accuracy, or both, our experience with the `nphsintel` package demonstrates the transformative potential of custom solutions. Reach out to discuss how I can help your organisation turn data challenges into opportunities for innovation and growth. [Contact me](mailto:phildonovan99@protonmail.com) to get started on your journey towards streamlined operations and enhanced productivity.
+
+
+---
+
+*Please note that the `nphsintel` package is an in-house package that is not 
+available on CRAN.*
+

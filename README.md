@@ -13,8 +13,25 @@ index.html    all content
 styles.css    all styling, including the print stylesheet
 favicon.svg   trig-station mark
 build-cv.sh   regenerates the downloadable CV files
+build-writing.sh  renders the writing archive
 cv/           generated PDF and DOCX (committed, so Pages can serve them)
+writing/      _posts/ holds the sources; <slug>/ pages are generated
 ```
+
+## Writing
+
+An **archive**, not a blog — a dated list that makes no promise of currency. Sources
+live in `writing/_posts/<slug>/index.qmd` (Quarto documents carried over from the old
+blog); `./build-writing.sh` renders each to `writing/<slug>/index.html`.
+
+The posts contain executable R chunks which are deliberately **not** executed — some
+read data that isn't public, and the code itself is the point. The build rewrites
+```` ```{r} ```` fences to plain ```` ```r ```` so pandoc renders them as highlighted,
+non-executed blocks.
+
+To add a post: drop a new folder under `writing/_posts/`, then add a matching entry to
+the Writing section of `index.html`. The listing there is hand-maintained — it's four
+lines, and it lets each entry carry its own one-line description.
 
 ## Downloads
 

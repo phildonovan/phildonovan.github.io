@@ -1,0 +1,200 @@
+---
+title: "Utilising S3 Classes in R for Vaccine Data Analysis"
+author: "Phil Donovan"
+date: "2024-01-07"
+categories: [code, analysis, s3, object-orientation]
+image: "s3-classes-intro.png"
+draft: false
+---
+
+```{r, setup, include=FALSE}
+library(sloop)
+```
+
+## Introduction
+
+Over the past six months, I have been assisting a public health agency as a 
+reporting analyst. 
+We face significant challenges in managing and interpreting diverse and 
+voluminous vaccine data such as MMR, influenza, and COVID-19. 
+Each vaccine type presents unique data characteristics, creating a multifaceted 
+information landscape.
+
+We have developed our own R package to help simplify vaccine data analysis. 
+It reduces repetitive coding and introduces a standardised approach to the 
+complexities inherent in vaccine data.
+
+In this post, I explore the potential of integrating S3 classes into our data 
+analysis toolkit. 
+For the most part, I view object-oriented programming as an added complexity for
+my day-to-day work, and even for my packages. 
+However, the unique challenges posed by vaccine data have provided me with a 
+good opportunity to potentially utilise OOP, and I wanted to highlight the 
+benefits of S3 classes in simplifying complex data analysis.
+
+## Polymorphism: The Many Shapes of Vaccination Data
+
+Our work often revolves around the 'vaccine events' table, seemingly simple but 
+complex upon deeper analysis. 
+Categorising individuals by vaccination status becomes intricate with the varied
+schedules of different vaccines. 
+We also adapt our analysis to various demographic or geographic segments, 
+underscoring the need for a versatile approach.
+
+Here, S3 classes in R offer a solution. 
+Their flexibility and simplicity can standardise our process while accommodating
+each vaccine's unique characteristics. 
+This is where the concept of polymorphism, or 'many shapes', in Object-Oriented 
+Programming (OOP) becomes vital. 
+Polymorphism allows functions like `summary()` in R to adapt their behaviour 
+based on the data type:
+
+```{r, summary-example}
+diamonds <- ggplot2::diamonds
+
+summary(diamonds$carat)
+summary(diamonds$cut)
+```
+
+In this example, `summary()` varies its output based on whether it's summarising
+numerical data (carat) or categorical data (cut). 
+Such polymorphic functions in our vaccine data analysis would enable handling 
+diverse data types efficiently, aligning with the varied nature of our data and 
+enhancing workflow efficiency.
+
+## S3 Classes in R: An Overview and Demonstration
+
+Unlike Python's singular OOP system, R offers three systems: S3, S4, and R6. 
+S3's flexibility and minimalistic design, as highlighted in Hadley Wickham's 
+[Advanced R](https://adv-r.hadley.nz/s3.html), provides significant programming 
+freedom. 
+This is especially useful for managing diverse datasets like vaccine data.
+
+Let's start by defining a constructor for vaccine data. 
+A constructor in R is a function that creates and initialises an S3 object:
+
+```{r, define-constructor}
+# Constructor for vaccine data
+new_vaccine_data <- function(data, vaccine_type) {
+  stopifnot(is.data.frame(data))  # Ensure data is a dataframe
+  stopifnot(is.character(vaccine_type) && length(vaccine_type) == 1)  # Validate vaccine_type
+  
+  structure(data, class = c(vaccine_type, "vaccine_data", "data.frame"))
+}
+
+# Create mock data frame
+vaccine_df <- data.frame(patient_id = 1:10, vaccine_date = Sys.Date())
+
+# Apply 'constructor' class to dataframe
+mmr_vaccine_data <- new_vaccine_data(vaccine_df, "mmr")
+covid_vaccine_data <- new_vaccine_data(vaccine_df, "covid")
+
+# Print the 'class' of the object.
+class(mmr_vaccine_data)
+```
+
+This constructor simplifies the process of tagging dataframes with specific 
+vaccine types.
+
+Next, a custom print method demonstrates how S3 class attributes can be used:
+
+```{r, print-demo}
+# Custom print method for vaccine data
+print.vaccine_data <- function(x, ...) {
+  vaccine_type <- attr(x, "class")[1]
+  cat("Vaccine Type:", vaccine_type, "\n")
+  NextMethod()
+}
+
+print(mmr_vaccine_data)
+```
+
+After defining our custom print method, it's important to understand the role of
+`NextMethod()` in this context. 
+In S3 classes, `NextMethod()` is used to call the next method in the hierarchy. 
+[
+The *hierarchy* referred to by `NextMethod()` is determined by the class 
+attribute of the object. 
+The class attribute is a character vector where each element represents a 
+different class which you can check with `class(obj)`. 
+The order of these classes in the vector dictates the method hierarchy. 
+When `NextMethod()` is called, it looks for the next method to execute based on 
+this class hierarchy. 
+If the first element in the class attribute doesn't have a specific method, 
+`NextMethod()` will search for a method corresponding to the next element in the
+class attribute, and so on. 
+This mechanism allows for a form of inheritance where methods from more general 
+classes can be used if more specific methods aren't available.
+]{.aside} In our `print.vaccine_data` function, after printing the vaccine type,
+`NextMethod()` ensures that the standard data frame print method is also 
+executed. 
+This combination allows for custom behavior (displaying the vaccine type) while 
+maintaining the default data frame print behavior, demonstrating the 
+adaptability of S3 methods.
+
+In any case, this custom print method defined above, showcases the practicality 
+and simplicity of using S3 classes in R. 
+By customising the print function, we can make it easier for our analysts to 
+track what datasets are being used.
+
+Now it's worth considering how we could further leverage our S3 classes with 
+specific methods tailored for different vaccines. 
+For instance, we could develop a `add_vax_status()` function with unique methods
+like `add_vax_status.mmr()` and `add_vax_status.covid()`. 
+Each method could handle vaccine-specific criteria for determining vaccination 
+status, reflecting the unique schedules and requirements of each vaccine type. 
+Incorporating these methods into our S3 framework would significantly enhance 
+our ability to process and interpret vaccine data with precision and 
+context-specific insights.
+
+Let's introduce a practical application of S3 classes with the `add_vax_status()` 
+function. 
+This function demonstrates polymorphism by adapting its behavior based on the 
+vaccine type. 
+For instance:
+
+```{r, demonstrate-add-vax-status}
+add_vax_status <- function(data) {
+  UseMethod("add_vax_status")
+}
+
+add_vax_status.covid <- function(data) {
+  cat("Adding COVID vax status\n")
+  # Specific logic for COVID vaccine
+}
+
+add_vax_status.mmr <- function(data) {
+  cat("Adding MMR vax status\n")
+  # Specific logic for MMR vaccine
+}
+```
+
+Now let's try for MMR:
+
+```{r, add-vax-status-mmr}
+add_vax_status(mmr_vaccine_data)
+```
+
+and Covid:
+
+```{r, add-vax-status-covid}
+add_vax_status(covid_vaccine_data)
+```
+
+As shown, when invoked with a dataset, `add_vax_status` identifies the vaccine 
+type (COVID or MMR) and executes the corresponding method. 
+This not only simplifies the code but ensures that each vaccine type is handled 
+appropriately, showcasing the power of polymorphism in streamlining our data 
+analysis tasks.
+
+## Conclusion
+
+This exploration of S3 classes in R demonstrates their potential in streamlining
+vaccine data analysis. 
+The adaptability and simplicity of S3 classes offer a promising solution to the 
+complexities we face. 
+As we continue to develop our R package, the integration of these 
+object-oriented principles could greatly enhance our analytic capabilities, 
+ultimately benefiting public health decision-making. 
+Rest assured, I will keep you posted on what we end up doing, and it's 
+effectiveness.

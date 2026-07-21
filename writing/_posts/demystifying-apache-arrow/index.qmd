@@ -1,0 +1,97 @@
+---
+title: "Demystifying Apache Arrow with R"
+author: "Phil Donovan"
+date: "2023-07-16"
+categories: [code, analysis, apache, arrow]
+image: "apache-arrow.png"
+---
+
+Hi folks, today we're going to be tackling a pretty cool concept in the realm of big data and analytics -- Apache Arrow, and how it interacts with R, a language many of us use regularly for data analysis.
+
+## So, What Exactly is Apache Arrow?
+
+Apache Arrow is an open-source software that provides a standard format for the in-memory representation of tabular ("table-like") data. In other words, it's a tool that organises data in a specific way, stored right in your computer's memory (RAM), ready for rapid access and manipulation.
+
+But Arrow's charm doesn't stop there. What sets it apart is its cross-language capabilities and cross-platform compatibility. This means it works seamlessly with a wide array of programming languages (like R, Python, Java, C++, and more), and it runs on various operating systems like Windows, macOS, and Linux. This interoperability makes it easier to work on big data problems using different tools, as they can all understand Arrow's data format.
+
+Specifically in the context of R, Apache Arrow provides an efficient bridge to this in-memory data. By reading data into Arrow format, R can process larger datasets much faster than it could otherwise. This is all thanks to Arrow's ability to store data in a way that modern hardware like CPUs can process very quickly.
+
+## How Does R Come Into the Picture?
+
+R is a popular choice among many data enthusiasts for its ability to handle statistical analysis and create compelling graphics. However, when it comes to managing larger datasets, R might leave you hanging. It's not just that R slows down significantly; it can completely error out when the size of the data exceeds available memory.
+
+This is a particularly noticeable challenge in organisations that deal with large data sets regularly. A case in point is the Ministry of Health here in New Zealand. While the industry trend has been to migrate towards more modern data science tools like R, it's often easier said than done. Traditional tools like SAS often remain in play simply because they have a way of dealing with large datasets. They're designed to offload portions of the data to the disk when the size of the data exceeds available memory. R, on the other hand, lacks this functionality.
+
+To work with large datasets in R, a common approach has been to split the data into chunks, save them to disk, and process them separately. However, this method can be cumbersome and time-consuming.
+
+Enter Apache Arrow. Arrow addresses this issue, similar to how SAS does by offloading data to the disk, but with added advantages - it not only automatically handles the 'chunking' of data for you, but it also manages memory usage and performs parallel processing to speed up tasks. All these advantages make Arrow blazingly fast! This doesn't just mean that R goes faster---it means that R can now handle datasets that it simply couldn't before, and *boy* does it handle them well.
+
+Recently, in a real-world scenario at the Ministry of Health, we used Apache Arrow to analyse a massive 50GB dataset. To give you an idea of the speed improvements, it took a mere 10 minutes to summarise and tally the entire table. That's the kind of speed we're talking about with Apache Arrow---it's like strapping a rocket to your pushbike!
+
+## Getting Started with Apache Arrow, R and dplyr
+
+What's particularly cool about Apache Arrow is its ability to integrate seamlessly with dplyr. This means that many of your favourite dplyr operations like filtering, mutating and summarising can be applied directly to Arrow datasets. While the interoperability between dplyr and Arrow is still being expanded, you can already do a lot right out of the box. It's all the power of dplyr, turbocharged with Arrow.
+
+Let's put this to the test with a classic dataset we all know and love, the **`mtcars`** dataset. We'll group it by the 'cyl' variable and then write it to disk using Arrow's **`write_dataset()`** function.
+
+```{r, set-up-data-set, message=FALSE}
+library(arrow)
+library(dplyr)
+library(fs)
+
+# Group the mtcars dataset by 'cyl'
+grouped_mtcars <- mtcars |>
+  group_by(cyl)
+
+# Define the location to save the arrow dataset
+dataset_dir <- path(tempdir()) / "mtcars-arrow-data"
+dir_create(dataset_dir)
+
+# Use arrow::write_dataset() to write the data
+write_dataset(grouped_mtcars, dataset_dir, format = "arrow")
+```
+
+The **`write_dataset()`** function formats the partitions (in this case, groups of 'cyl') into an arrow file and outputs them into separate directories based on the grouping:
+
+```{r, output-dataset}
+dir_ls(dataset_dir, recurse = TRUE, type = "file") 
+```
+
+Now, to bring this data back into R, we can use the **`open_dataset()`** function.
+
+```{r, load-arrow-data-set}
+# Load the data back into R
+loaded_data <- open_dataset(dataset_dir, format = "arrow")
+
+# Print the loaded data
+print(loaded_data)
+```
+
+But let's not stop there. We can use dplyr functions to summarise our newly loaded Arrow data. Just a heads up though - much like how **`dbplyr`** interacts with databases, Apache Arrow won't actually pull data in or perform a query until explicitly told to 'run'. This is a concept known as 'lazy' evaluation and it's a big part of what makes Apache Arrow so efficient.
+
+To 'run' the computations and get our results back into R as a dataframe, we use the **`collect()`** function. Here's how it works:
+
+```{r, summarise}
+# Summarise the loaded data using dplyr functions
+summary <- loaded_data |>
+  group_by(cyl) |>
+  summarise(mean_mpg = mean(mpg)) |>
+  collect()
+
+# Print the summary
+print(summary)
+```
+
+And there you have it! You've just successfully written a dataset to disk using Apache Arrow and dplyr, loaded it back into R, and summarised it using dplyr functions.
+
+## In Conclusion
+
+Apache Arrow is a valuable addition to any data enthusiast's toolkit, especially for those using R. It acts as a bridge between big data tools, providing an efficiency boost for in-memory analytics.
+
+Interested in exploring further? Visit the [**Apache Arrow website**](https://arrow.apache.org/) for more details.
+
+Having the right tools in the field of data science can make all the difference. Apache Arrow is one such tool that can significantly streamline your data analysis process.
+
+In the coming weeks, we'll be exploring more about Apache Arrow, covering some exciting topics. For instance, we'll discuss why you might want to consider moving away from .rds and .rdata files altogether and start using Arrow (specifically, Feather v2 which are Arrow files) for your data storage needs.
+
+Give Apache Arrow a try, and happy data analysis!

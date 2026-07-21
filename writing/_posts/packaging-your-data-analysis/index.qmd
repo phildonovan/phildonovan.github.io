@@ -1,0 +1,261 @@
+
+---
+title: "Packaging your day-to-day data analysis"
+author: "Phil Donovan"
+date: "2023-11-29"
+categories: [code, analysis, packages, lazy]
+image: "nice-image.png"
+---
+
+# Packages are for everyone
+
+It's a common misconception that creating R packages is a feat reserved for the 
+likes of Hadley Wickham or other programming virtuosos. 
+But here's the truth: you don't need to be a programming guru to develop useful 
+R packages. I've crafted R packages myself, without ever delving into 
+object-oriented programming (OOP) in R. And sending packages to CRAN? 
+While that's a noble pursuit, I just want to make my day-to-day job easier
+*and then* worry about *saving the world*. 
+
+As a day-to-day data analyst, I understand the practical needs and challenges 
+we face. 
+My approach to R package development is akin to being a pragmatic workhorse. 
+My goal here is to encourage you to embrace R package 
+development in your daily work – not for the flair, but for the substantial 
+benefits it brings.
+
+# Why do *you* need an R Package?
+
+R packages aren't just for the seasoned developers; they're a practical tool for 
+every data analyst. 
+Integrating the wisdom of [Hadley Wickham](https://r-pkgs.org/introduction.html)
+, here’s why developing your own R package can be a game-changer:
+
+- **Code Reproducibility: A Cornerstone of Reliable Analysis**
+  R packages ensure that your analyses are reproducible, crucial for the 
+  integrity and credibility of your work. It's like having a recipe that anyone 
+  can follow for consistent results.
+
+- **Time-saving Conventions: Follow a Proven Template**
+  As Hadley Wickham points out, R packages come with a set of conventions 
+  (like putting R code in `R/`, tests in `tests/`, and data in `data/`). 
+  These conventions save you time and decision-making energy.
+
+- **Standardisation and Tools: Embrace the Power of R's Ecosystem**
+  Adopting R's package conventions opens up access to numerous tools that 
+  integrate seamlessly with this structure, automating tasks and facilitating 
+  package development.
+
+- **Don't Repeat Yourself: Streamlining Your Workflow**
+  The DRY principle is fundamental in programming, and R packages embody this by
+  consolidating frequently used code into functions, avoiding redundancy and 
+  errors.
+
+- **Documentation: Create Your Code's Handbook**
+  Good documentation within packages serves as a guide, making it easier for 
+  others to understand and use your code, enhancing collaboration.
+
+- **Testing: Ensuring Quality and Reliability**
+  Regular testing within your package framework keeps your code reliable, much 
+  like quality checks in manufacturing.
+
+- **Structuring Data Analyses: Going Beyond Code**
+  Packages can also structure data analyses themselves, a versatile approach 
+  underscoring the utility of R packages in streamlining not just code, but the 
+  analytical process itself.
+  
+OK, enough of the theory, let me demonstrate a *few* of these benefits below.
+
+# Example A: Managing file paths
+
+A practical application of all these principles is what I call 'soft-linking'. 
+This technique involves creating functions within your package to abstract away 
+the complexities of data paths and sources. 
+For example, consider the following:
+
+```{r, nooo, eval=FALSE}
+my_commonly_used_data <- read_csv("/horrifying/network/path/on/work/computer/WHiCH/SomETimes/USES_ALL_CAPPS/Then it switches to spaces/ and sometimes-we-get-hypens.csv")
+```
+
+Now we can ameliorate this by having the data stored in a data directory within 
+the project folder, but if this is commonly used data, we need to duplicate it 
+across multiple places. 
+And what happens if this data needs updating? Then we need to change it in all 
+of our projects which use it.
+This is where a custom R package can save the day. 
+In your package, to save yourself time and effort, you can create a function
+like so:
+
+```{r, yeesssss, eval=FALSE}
+my_common_data <- function() {
+  read_csv("/horrifying/network/path/on/work/computer/WHiCH/SomETimes/USES_ALL_CAPPS/Then it switches to spaces/ and sometimes-we-get-hypens.csv")
+}
+```
+
+OK, we write that path out once, hoping to never have to rewrite it ever again.
+And now, we can go:
+
+```{r, yes-x2, eval=FALSE}
+library(myawesomepackage)
+
+# Get that data I always need.
+common_data <- my_common_data()
+```
+
+Fantastic. Easy. Can we go home now? Yes! But if you had time, you could actually
+write some documentation to explain this data set, and its origins. 
+Thus, any other analyst that comes along who wants to use your data can easily 
+understand how the data set was created, when, why, etc.
+
+For example, you ~~could~~ should write some documentation with roxygen code:
+
+```{r, eval = TRUE}
+#' My data function
+#' 
+#' Here is a description of what my data is, and where it comes from.
+#' This is really handy, and makes it easy for anyone new to your team to pick 
+#' up what the data is and any extra, important information there is.
+#' 
+#' @examples
+#' Put your examples here.
+my_common_data <- function() {
+  read_csv("/horrifying/network/path/on/work/computer/WHiCH/SomETimes/USES_ALL_CAPPS/Then it switches to spaces/ and sometimes-we-get-hypens.csv")
+}
+```
+
+and then you can easily use `?my_common_data` to read your amazing notes on your
+data just like you can with `?mtcars`.
+
+But how does this simple demonstration of creating a function in R relate to the
+theoretical, computer science jargon we spoke about above? 
+Well, 'soft-linking' exemplifies the benefits of R packages in a tangible way:
+
+- It’s a direct application of **code reproducibility** – once set up, anyone 
+  using your package can access data consistently and accurately.
+- It aligns with **time-saving conventions** – you set up data paths once, and 
+  they’re ready to use across various projects.
+- 'Soft-linking' enhances **standardisation** – there’s a single source of truth
+  for data sources and paths within your package.
+- It perfectly embodies the **DRY principle** – you write the data path code 
+  once and reuse it, avoiding repetition.
+- Through **documentation**, it’s easy for you and others to know how data is 
+  accessed and managed within your package.
+- And finally, it supports the practice of **testing** by ensuring your data 
+  access methods are always working as expected.
+  
+# Example B: Managing data bases
+
+A similar example of this is when connecting to a database, as opposed to your 
+file system. 
+Often, you find yourself writing either a `DBI` or `dbplyr` query, and it can 
+become quite repetitive. Your workflow probably looks something like this:
+
+```{r, connect-to-damn-db-again, eval = FALSE}
+# I have to connect to that damned db again
+con <- dbConnect(
+  RMariaDB::MariaDB(),
+  host = "relational.fit.cvut.cz",
+  port = 3306,
+  username = "guest",
+  password = "relational",
+  dbname = "sakila"
+)
+```
+
+Then, you need to retrieve the table:
+
+```{r, get-tbl, eval = FALSE}
+# Then either DBI::getQuery or tbl
+my_data <- tbl(
+  con, 
+  in_catalog(
+    "which_catalog_again?", 
+    "which_schema?", 
+    "what_is_that_table_name_again?"
+  )
+)
+```
+
+Wouldn't it be more efficient to streamline this process? Let's do it:
+
+```{r, jesus-2.0, eval = FALSE}
+# My function to connect to maria db
+con <- connect_to_maria()
+
+# My custom function which returns a tbl or tibble if collect=TRUE
+my_tbl <- my_data()
+my_tibble <- my_data(collect=TRUE)
+```
+
+This approach follows the same principles as with CSV files, but there's an 
+additional benefit that can save your organisation time and money: easy 
+redirection in case of database migrations.
+
+For example, we're currently transitioning from an old Oracle database to a new 
+Snowflake one. 
+The Oracle server can't be shut down immediately due to legacy code 
+dependencies. 
+Now, imagine if these functions had been used throughout those 1 million+ 
+scripts. 
+The migration process would be significantly more manageable and less 
+disruptive.
+
+Creating these functions and using them consistently would have future-proofed 
+the code, making the transition smoother and more efficient.
+
+# Example C: Streamlining package loading
+
+Another benefit of creating your own library is that you can set it to import 
+the packages that you use all the time. 
+For example, the conventional method in R script initiation often involves 
+invoking several libraries separately, as illustrated below:
+
+```{r, load-libraries, eval=FALSE}
+library(tidyverse)
+library(lubridate)
+library(sf)
+library(fs)
+library(rprojroot)
+#...
+```
+
+However, it does get tiresome repeating this every single time you want to 
+create a new analysis (call me *lazy*). 
+Furthermore, sometime you just want one function from
+a package and it seems overkill to me to import the whole package. 
+Of course, you can just run `mypackage::function()` but even that is rather 
+ugly.
+
+With your own package, you can import everything you commonly use, and not have
+to duplicate multiple lines of code:
+
+```{r, load-demo, eval=FALSE}
+library(mypackage)
+```
+
+Furthermore, it's also a great to re-install libraries that you need if you're
+creating a new instance of R or renv. 
+Instead of having to recall and specify every library you want installed on a 
+new instance or virtual instance, you can just install your own library and its
+dependencies.
+
+# Summary
+
+Throughout this post, we've explored only *some* benefits of using R 
+packages in the realm of data analysis. From enhancing code reproducibility to 
+embracing time-saving conventions, R packages offer a structured and efficient 
+approach to managing your analytical workflows. 
+
+We delved into practical applications like 'soft-linking', demonstrating how 
+abstracting data paths and sources can drastically simplify and streamline your 
+work. 
+The real-life scenarios illustrated how R packages can make repetitive tasks, 
+such as connecting to databases or managing file paths, a thing of the past.
+
+The beauty of R packages lies not only in these practical examples but also in 
+the myriad other benefits they bring. They foster a standardisation of 
+processes, help maintain a single source of truth for data sources and paths, 
+and encourage best practices like DRY (Don't Repeat Yourself) and thorough 
+documentation. 
+All of these contribute to more efficient, reliable, and collaborative data 
+analysis.

@@ -1,7 +1,9 @@
-name: Build CV downloads
+name: Build generated files
 
-# Only fires when the CV's source changes. The job's own commit touches nothing
-# but cv/, so it can't retrigger itself — no loop guard needed beyond this.
+# Fires only when generated output's *source* changes. The job commits to cv/
+# and writing/<slug>/, neither of which is watched below — the filter tracks
+# writing/_posts/** and _template.html, not the rendered pages. So the job
+# cannot retrigger itself, and no further loop guard is needed.
 on:
   push:
     branches: [main]
@@ -9,6 +11,9 @@ on:
       - index.html
       - styles.css
       - build-cv.sh
+      - build-writing.sh
+      - writing/_posts/**
+      - writing/_template.html
       - .github/workflows/build-cv.yml
   workflow_dispatch:
 
@@ -44,6 +49,9 @@ jobs:
           fi
           command -v google-chrome && google-chrome --version || true
 
+      - name: Build the writing archive
+        run: ./build-writing.sh
+
       - name: Build PDF and DOCX
         run: ./build-cv.sh
 
@@ -57,14 +65,22 @@ jobs:
           [ "$size" -gt 20000 ] || { echo "::error::PDF suspiciously small ($size bytes)"; exit 1; }
           ls -lh cv/
 
+          # Every source post must have produced a page.
+          for src in writing/_posts/*/; do
+            slug="$(basename "$src")"
+            page="writing/$slug/index.html"
+            [ -s "$page" ] || { echo "::error::$page missing or empty"; exit 1; }
+          done
+          echo "writing archive: $(ls -d writing/*/ | grep -cv _posts) pages"
+
       - name: Commit if changed
         run: |
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- cv/; then
-            echo "No change to the generated CV files."
+          if git diff --quiet -- cv/ writing/; then
+            echo "No change to the generated files."
             exit 0
           fi
-          git add cv/
-          git commit -m "Rebuild CV downloads [skip ci]"
+          git add cv/ writing/
+          git commit -m "Rebuild generated files [skip ci]"
           git push

@@ -195,7 +195,9 @@ code {
     padding-top: 0.9rem;
   }
 
-  #main { margin-left: var(--rail-w); }
+  /* Only the pages that actually have a rail get offset for it. Post pages
+     have no rail and should stay centred. */
+  body:not(.post-page) #main { margin-left: var(--rail-w); }
 }
 
 /* ============================================================
@@ -725,6 +727,186 @@ code {
   text-transform: uppercase;
   color: var(--ink-faint);
 }
+
+/* ============================================================
+   Writing — archive listing + post pages
+   ============================================================ */
+
+.writing { list-style: none; margin: 0; padding: 0; }
+
+.writing li {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.3rem;
+  padding: 1.15rem 0;
+  border-top: 1px solid var(--rule);
+}
+
+.writing li:first-child { border-top: none; padding-top: 0; }
+
+@media (min-width: 800px) {
+  .writing li {
+    grid-template-columns: 10.5rem 1fr;
+    gap: 3rem;
+    align-items: baseline;
+  }
+}
+
+.writing__date {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+.writing__title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.08rem;
+  letter-spacing: -0.012em;
+  text-decoration: none;
+  color: var(--ink);
+  border-bottom: 2px solid var(--water);
+  padding-bottom: 1px;
+}
+
+.writing__title:hover { color: var(--water-deep); border-bottom-color: var(--signal); }
+
+.writing__note {
+  display: block;
+  margin-top: 0.35rem;
+  color: var(--ink-soft);
+  max-width: 62ch;
+}
+
+/* ── post pages ───────────────────────────────────────── */
+
+.post {
+  max-width: 74ch;
+  margin: 0 auto;
+  padding: clamp(2rem, 5vw, 3.5rem) clamp(1.5rem, 5vw, 3rem) 4rem;
+  position: relative;
+  z-index: 1;
+}
+
+.post__back {
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 3rem;
+}
+
+.post__back a { text-decoration: none; color: var(--ink-faint); }
+.post__back a:hover { color: var(--ink); }
+
+.post__head {
+  padding-bottom: 1.6rem;
+  margin-bottom: 2.4rem;
+  border-bottom: 1px solid var(--rule-firm);
+}
+
+.post__title {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  margin: 0.8rem 0 0;
+  text-wrap: balance;
+}
+
+.post__subtitle {
+  font-size: 1.1rem;
+  color: var(--ink-soft);
+  margin: 0.9rem 0 0;
+}
+
+.prose { font-size: 1.06rem; line-height: 1.68; }
+
+.prose > :first-child { margin-top: 0; }
+
+.prose h1, .prose h2, .prose h3 {
+  font-family: var(--font-display);
+  letter-spacing: -0.018em;
+  line-height: 1.22;
+  margin: 2.6rem 0 0.9rem;
+}
+
+.prose h1 { font-size: 1.6rem; font-weight: 700; }
+.prose h2 { font-size: 1.35rem; font-weight: 700; }
+.prose h3 { font-size: 1.12rem; font-weight: 600; }
+
+.prose p { margin: 0 0 1.15rem; }
+.prose ul, .prose ol { margin: 0 0 1.15rem; padding-left: 1.3rem; }
+.prose li { margin-bottom: 0.4rem; }
+
+.prose a { color: var(--water); }
+.prose a:hover { color: var(--water-deep); text-decoration-color: var(--signal); }
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 1.8rem 0;
+  border: 1px solid var(--rule);
+}
+
+.prose blockquote {
+  margin: 1.6rem 0;
+  padding: 0.2rem 0 0.2rem 1.2rem;
+  border-left: 2px solid var(--contour);
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.prose pre {
+  background: rgba(22, 24, 26, 0.045);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  margin: 0 0 1.4rem;
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.prose pre code { background: none; padding: 0; font-size: inherit; }
+
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+}
+
+.prose th, .prose td {
+  text-align: left;
+  padding: 0.5rem 0.7rem;
+  border-bottom: 1px solid var(--rule);
+}
+
+.prose th {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom-color: var(--rule-firm);
+}
+
+.post__foot {
+  margin-top: 3.5rem;
+  padding-top: 1.4rem;
+  border-top: 1px solid var(--rule-firm);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.05em;
+  color: var(--ink-faint);
+}
+
+.post__foot p { margin: 0 0 0.5rem; }
+.post__stale { color: var(--ink-faint); opacity: 0.85; }
 
 /* ============================================================
    Print — the sheet becomes the CV
