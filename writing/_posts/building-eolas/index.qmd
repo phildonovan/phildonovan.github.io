@@ -124,7 +124,3 @@ source.
 
 There is a reasonable amount still to do. More sources, better coverage of the ones already
 there, and continued work on the contract tests that keep the whole thing honest.
-
-If you work with New Zealand data and want to look, the platform is at
-[eolas.fyi](https://eolas.fyi), and the Python and R clients are on
-[GitHub](https://github.com/phildonovan).
