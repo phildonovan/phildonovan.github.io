@@ -298,6 +298,24 @@ code {
   margin: 0.85rem 0 0;
 }
 
+.hero__affil {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0.55rem 0 0;
+}
+
+.hero__affil a {
+  color: var(--water);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-firm);
+  padding-bottom: 1px;
+}
+
+.hero__affil a:hover { border-bottom-color: var(--signal); }
+
 .hero__pitch {
   max-width: 60ch;
   margin: 1.9rem 0 0;
@@ -479,6 +497,42 @@ code {
   margin: 0;
   font-size: 1.02rem;
   line-height: 1.55;
+}
+
+/* ── consulting ───────────────────────────────────────── */
+
+.consult__lead {
+  max-width: 60ch;
+  font-size: 1.08rem;
+  margin: 0 0 2rem;
+}
+
+.services {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
+  gap: 0.1rem 2.6rem;
+}
+
+.services li {
+  position: relative;
+  padding: 0.7rem 0 0.7rem 1.35rem;
+  border-top: 1px solid var(--rule);
+  font-size: 1.0rem;
+}
+
+.services li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 1.15em;
+  width: 0; height: 0;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-bottom: 7px solid var(--contour);
+  opacity: 0.75;
 }
 
 /* ── selected work ────────────────────────────────────── */
@@ -679,6 +733,13 @@ code {
 
   .hero__name { font-size: 26pt; margin: 2pt 0 0; }
   .hero__role { font-size: 11pt; margin-top: 2pt; color: #000; }
+  .hero__affil { font-size: 8.6pt; margin-top: 3pt; color: #000; }
+  .hero__affil a { border-bottom: none; }
+
+  .consult__lead { font-size: 10pt; max-width: 100%; margin-bottom: 8pt; }
+  .services { gap: 0 1.6rem; }
+  .services li { padding: 3pt 0 3pt 1.2rem; font-size: 10pt; }
+  .services li::before { border-bottom-color: #000; }
   .hero__pitch { font-size: 10pt; margin-top: 8pt; max-width: 100%; }
 
   .hero__contact-print {
