@@ -29,9 +29,13 @@ The PDF renders the page through the print stylesheet. The DOCX strips the page
 furniture (rail, contours, buttons), rebuilds the experience entries as proper
 headings, and hands the result to pandoc — recruiters get an editable file.
 
-Needs `chromium`, `pandoc`, and `python3` with `beautifulsoup4`. **Commit the
-regenerated files** — Pages serves them straight from the repo, so stale
-artifacts mean stale downloads.
+Needs `chromium`, `pandoc`, and `python3` with `beautifulsoup4`.
+
+You don't have to remember any of that, though: **`.github/workflows/build-cv.yml`
+rebuilds and commits both files automatically** whenever `index.html`, `styles.css`
+or `build-cv.sh` changes on `main`. Edit content, push, and the downloads catch up
+on their own. Running `build-cv.sh` locally is only for previewing the output
+before you push.
 
 ## Design
 

@@ -1,0 +1,70 @@
+name: Build CV downloads
+
+# Only fires when the CV's source changes. The job's own commit touches nothing
+# but cv/, so it can't retrigger itself — no loop guard needed beyond this.
+on:
+  push:
+    branches: [main]
+    paths:
+      - index.html
+      - styles.css
+      - build-cv.sh
+      - .github/workflows/build-cv.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: build-cv
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install pandoc and beautifulsoup
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq pandoc
+          python3 -m pip install --quiet beautifulsoup4
+
+      # The runner ships Google Chrome; build-cv.sh finds it by name. Fail loudly
+      # rather than silently skipping the PDF if that ever stops being true.
+      - name: Check for a headless browser
+        run: |
+          if ! command -v chromium >/dev/null \
+            && ! command -v chromium-browser >/dev/null \
+            && ! command -v google-chrome >/dev/null; then
+            echo "::error::No chromium or google-chrome on the runner"
+            exit 1
+          fi
+          command -v google-chrome && google-chrome --version || true
+
+      - name: Build PDF and DOCX
+        run: ./build-cv.sh
+
+      - name: Verify the artifacts are real
+        run: |
+          for f in cv/phil-donovan-cv.pdf cv/phil-donovan-cv.docx; do
+            [ -s "$f" ] || { echo "::error::$f missing or empty"; exit 1; }
+          done
+          # A PDF this small means the render failed and produced a blank page.
+          size=$(stat -c%s cv/phil-donovan-cv.pdf)
+          [ "$size" -gt 20000 ] || { echo "::error::PDF suspiciously small ($size bytes)"; exit 1; }
+          ls -lh cv/
+
+      - name: Commit if changed
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet -- cv/; then
+            echo "No change to the generated CV files."
+            exit 0
+          fi
+          git add cv/
+          git commit -m "Rebuild CV downloads [skip ci]"
+          git push
