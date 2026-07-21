@@ -12,7 +12,26 @@ Plain static HTML/CSS. No build step, no dependencies, no framework — edit and
 index.html    all content
 styles.css    all styling, including the print stylesheet
 favicon.svg   trig-station mark
+build-cv.sh   regenerates the downloadable CV files
+cv/           generated PDF and DOCX (committed, so Pages can serve them)
 ```
+
+## Downloads
+
+The hero offers the CV as **PDF** and **Word**, both generated from `index.html`
+so there is one source of truth. After changing any content, regenerate them:
+
+```bash
+./build-cv.sh
+```
+
+The PDF renders the page through the print stylesheet. The DOCX strips the page
+furniture (rail, contours, buttons), rebuilds the experience entries as proper
+headings, and hands the result to pandoc — recruiters get an editable file.
+
+Needs `chromium`, `pandoc`, and `python3` with `beautifulsoup4`. **Commit the
+regenerated files** — Pages serves them straight from the repo, so stale
+artifacts mean stale downloads.
 
 ## Design
 
