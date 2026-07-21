@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phil Donovan — Data Architect &amp; Engineer</title>
+<meta name="description" content="Phil Donovan is a data architect and engineer in Auckland, New Zealand. He designs data platforms — Snowflake, dbt, Iceberg, AWS — for councils, health agencies and insurers.">
+<meta name="author" content="Phil Donovan">
+
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Phil Donovan — Data Architect &amp; Engineer">
+<meta property="og:description" content="Data architect and engineer in Auckland. Data platforms for councils, health agencies and insurers — with a geographer's eye for where the data comes from.">
+<meta property="og:url" content="https://phildonovan.github.io/">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<a class="skip" href="#main">Skip to content</a>
+
+<!-- ─────────── marginalia rail ─────────── -->
+<aside class="rail" aria-label="Section navigation">
+  <div class="rail__id">
+    <span class="rail__name">Phil Donovan</span>
+    <span class="rail__role">Data Architect &amp; Engineer</span>
+  </div>
+
+  <nav class="rail__nav">
+    <ul>
+      <li><a href="#experience">Experience</a></li>
+      <li><a href="#capabilities">Capabilities</a></li>
+      <li><a href="#work">Selected work</a></li>
+      <li><a href="#education">Education</a></li>
+      <li><a href="#research">Research</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <div class="rail__datum">
+    <span>Auckland · NZTM2000</span>
+    <span>E 1757300  N 5921000</span>
+  </div>
+</aside>
+
+<main id="main">
+
+  <!-- ─────────── hero ─────────── -->
+  <header class="hero">
+    <svg class="hero__contours" viewBox="0 0 1200 620" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+      <g class="contours" transform="translate(880 300)">
+        <path class="c c--index" transform="scale(1.00) rotate(4)"  d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+        <path class="c"          transform="scale(0.87) rotate(-3)" d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+        <path class="c"          transform="scale(0.75) rotate(7)"  d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+        <path class="c"          transform="scale(0.63) rotate(-6)" d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+        <path class="c c--index" transform="scale(0.52) rotate(11)" d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+        <path class="c"          transform="scale(0.42) rotate(-9)" d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+        <path class="c"          transform="scale(0.33) rotate(14)" d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+        <path class="c"          transform="scale(0.24) rotate(-12)" d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+        <path class="c"          transform="scale(0.16) rotate(18)" d="M300,0 C300,-90 250,-160 170,-210 C90,-260 10,-300 -80,-280 C-170,-260 -240,-200 -280,-120 C-320,-40 -300,60 -250,140 C-200,220 -110,290 -10,300 C90,310 190,270 250,190 C290,135 300,70 300,0 Z"/>
+      </g>
+      <!-- trig station at the summit -->
+      <g class="trig" transform="translate(880 300)" aria-hidden="true">
+        <path d="M0,-13 L11,7 L-11,7 Z"/>
+        <circle cx="0" cy="1" r="1.9"/>
+      </g>
+    </svg>
+
+    <div class="hero__inner">
+      <p class="eyebrow">Auckland, New Zealand &nbsp;·&nbsp; 36°50′56″S 174°45′36″E</p>
+      <h1 class="hero__name">Phil&nbsp;Donovan</h1>
+      <p class="hero__role">Data Architect &amp; Engineer</p>
+      <p class="hero__pitch">
+        I design data platforms — Snowflake, dbt, Iceberg, AWS — for councils, health
+        agencies and insurers. I trained as a geographer, which is why I tend to ask
+        where the data comes from before asking what it says.
+      </p>
+      <div class="hero__actions">
+        <a class="btn btn--primary" href="#contact">Get in touch</a>
+        <button class="btn" type="button" id="print">Print / save as PDF</button>
+      </div>
+
+      <!-- Printed CVs need the contact details up top, not just in the footer. -->
+      <p class="hero__contact-print">
+        phil@donovan.family &nbsp;·&nbsp; github.com/phildonovan &nbsp;·&nbsp; Auckland, New Zealand
+      </p>
+    </div>
+  </header>
+
+  <!-- ─────────── experience ─────────── -->
+  <section id="experience" class="section">
+    <div class="section__head">
+      <h2>Experience</h2>
+      <span class="eyebrow">2013 — present</span>
+    </div>
+
+    <ol class="timeline">
+
+      <li class="role">
+        <div class="role__when"><span class="role__years">2025 — now</span></div>
+        <div class="role__body">
+          <h3 class="role__title">Data Architect &amp; Engineer</h3>
+          <p class="role__org">FIRN <span class="role__sep">·</span> Auckland</p>
+          <ul class="ticks">
+            <li>Led the design of Auckland Council's Modern Data Platform, centralising data assets for scale and governance.</li>
+            <li>Spearheaded spatial data integration for the Strategic Spatial Modelling programme, shaping the geospatial architecture behind evidence-based urban planning.</li>
+            <li>Built dbt, Snowflake and Fivetran pipelines — including automated ingestion of LINZ land parcels via WFS changesets, keeping council-wide spatial analysis current.</li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="role">
+        <div class="role__when"><span class="role__years">2024 — 2025</span></div>
+        <div class="role__body">
+          <h3 class="role__title">R/SQL Developer, Engineer &amp; Scientist</h3>
+          <p class="role__org">AA Insurance <span class="role__sep">·</span> Auckland</p>
+          <ul class="ticks">
+            <li>Developed the pricing emulator that carried the migration from the legacy Protect platform to Duck Creek.</li>
+            <li>Advised on the architecture of their AWS analysis platform, and built custom SageMaker container images so analysts were productive the moment one deployed.</li>
+            <li>Wrote <code>aair</code>, an R package joining Redshift and other sources to the pricing emulator for reproducible pricing simulation.</li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="role">
+        <div class="role__when"><span class="role__years">2023 — 2024</span></div>
+        <div class="role__body">
+          <h3 class="role__title">Senior Analyst, R Developer &amp; SQL Engineer</h3>
+          <p class="role__org">Te Whatu Ora — Health New Zealand</p>
+          <ul class="ticks">
+            <li>Led geospatial advisory for the Queenstown <em>Cryptosporidium</em> outbreak response, mapping contamination risk to direct public health intervention.</li>
+            <li>Built <code>nphsintel</code>, an R package over Snowflake and PostGIS for population health analysis — cut code redundancy by around 75% and trained 10+ analysts on it.</li>
+            <li>Introduced Quarto-based automated reporting and Shiny dashboards for spatial health trends.</li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="role">
+        <div class="role__when"><span class="role__years">2022 — 2023</span></div>
+        <div class="role__body">
+          <h3 class="role__title">Principal GIS Analyst</h3>
+          <p class="role__org">Ministry of Health <span class="role__sep">·</span> Wellington</p>
+          <ul class="ticks">
+            <li>Automated geospatial workflows with the <code>mohanalytics</code> and <code>mohgeospatial</code> R packages, lifting team productivity by around 40%.</li>
+            <li>Built and maintained the ArcGIS Online Portal in Python and R, surfacing interactive layers on health access disparities with ETL keeping them current.</li>
+            <li>Wrote monitoring scripts tracking portal credit and cloud spend, cutting resource overruns by around 30%.</li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="role">
+        <div class="role__when"><span class="role__years">2018 — 2020</span></div>
+        <div class="role__body">
+          <h3 class="role__title">Spatial Data Scientist</h3>
+          <p class="role__org">Geographic Business Solutions <span class="role__sep">·</span> Auckland</p>
+          <ul class="ticks">
+            <li>Deployed and configured the ESRI Enterprise stack — ArcGIS Pro and Server, Survey123, Collector, Operations Dashboard — for client geospatial platforms.</li>
+            <li>Built 3D air pollution models for Seoul using the ArcGIS JavaScript API.</li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="role">
+        <div class="role__when"><span class="role__years">2016 — 2018</span></div>
+        <div class="role__body">
+          <h3 class="role__title">Spatial &amp; Economic Data Analyst</h3>
+          <p class="role__org">MRCagney <span class="role__sep">·</span> Auckland</p>
+          <ul class="ticks">
+            <li>Delivered the National Policy Statement on Urban Development Capacity analysis — regression modelling of the effect of zoning regulation on land prices nationally.</li>
+            <li>Ran the Whangārei residential and business development capacity assessment, building geometric algorithms to encode planning rules.</li>
+            <li>Public transport modelling against the Auckland and Wellington transport models.</li>
+          </ul>
+        </div>
+      </li>
+
+      <li class="role">
+        <div class="role__when"><span class="role__years">2013 — 2016</span></div>
+        <div class="role__body">
+          <h3 class="role__title">Spatial Data Analyst</h3>
+          <p class="role__org">SHORE, Massey University <span class="role__sep">·</span> Auckland</p>
+          <ul class="ticks">
+            <li>Principal spatial analyst on children's urban health research — from cleaning travel-diary data through to accessibility analysis.</li>
+            <li>Co-authored five peer-reviewed papers on children's mobility and the built environment.</li>
+          </ul>
+        </div>
+      </li>
+
+    </ol>
+  </section>
+
+  <!-- ─────────── capabilities ─────────── -->
+  <section id="capabilities" class="section">
+    <div class="section__head">
+      <h2>Capabilities</h2>
+      <span class="eyebrow">Tooling</span>
+    </div>
+
+    <dl class="caps">
+      <div class="cap">
+        <dt>Languages</dt>
+        <dd>R · Python · SQL</dd>
+      </div>
+      <div class="cap">
+        <dt>Warehouses &amp; engines</dt>
+        <dd>Snowflake · Redshift · PostgreSQL · Oracle · SQL Server · DuckDB · Apache Arrow · Iceberg</dd>
+      </div>
+      <div class="cap">
+        <dt>Pipelines</dt>
+        <dd>dbt · Meltano · Fivetran · Singer · PySpark</dd>
+      </div>
+      <div class="cap">
+        <dt>Cloud &amp; infrastructure</dt>
+        <dd>AWS · Docker · Linux · Git</dd>
+      </div>
+      <div class="cap">
+        <dt>Spatial</dt>
+        <dd>PostGIS · ArcGIS · QGIS · FME · GRASS</dd>
+      </div>
+      <div class="cap">
+        <dt>Apps &amp; reporting</dt>
+        <dd>R Shiny · Quarto · Power BI · ArcGIS Portal</dd>
+      </div>
+    </dl>
+  </section>
+
+  <!-- ─────────── selected work ─────────── -->
+  <section id="work" class="section">
+    <div class="section__head">
+      <h2>Selected work</h2>
+      <span class="eyebrow">Open source &amp; projects</span>
+    </div>
+
+    <div class="work">
+
+      <article class="card">
+        <h3><a href="https://github.com/phildonovan/eolas-data">eolas</a></h3>
+        <p>A clean statistical data platform for New Zealand, Australian and OECD data — 700+ datasets behind one API, with Python and R clients and a CLI. Singer taps into Iceberg on S3, served by FastAPI.</p>
+        <p class="card__meta">Python · R · Iceberg · FastAPI · AWS</p>
+      </article>
+
+      <article class="card">
+        <h3><a href="https://github.com/phildonovan/nzcensr">nzcensr</a></h3>
+        <p>An R package that makes New Zealand census data straightforward to import, in both spatial and non-spatial form.</p>
+        <p class="card__meta">R · Spatial</p>
+      </article>
+
+      <article class="card">
+        <h3><a href="https://github.com/phildonovan/nz-economic-overview">NZ Economic Overview</a></h3>
+        <p>An interactive Shiny dashboard over the vs-warehouse API, surfacing New Zealand economic indicators.</p>
+        <p class="card__meta">R · Shiny</p>
+      </article>
+
+      <article class="card">
+        <h3><a href="https://environment.govt.nz/acts-and-regulations/national-policy-statements/national-policy-statement-urban-development/">NPS-UDC</a></h3>
+        <p>National Policy Statement on Urban Development Capacity — quantifying how local government regulation moves land prices across New Zealand's major urban areas, by regression on zoning rules.</p>
+        <p class="card__meta">Economics · Spatial regression</p>
+      </article>
+
+      <article class="card">
+        <h3>NDAI-C</h3>
+        <p>The Network Destination Accessibility Index for Children: a tool measuring how reachable everyday destinations are for kids across Auckland, Hamilton, Wellington and Christchurch.</p>
+        <p class="card__meta">Accessibility · Network analysis</p>
+      </article>
+
+      <article class="card">
+        <h3>nphsintel</h3>
+        <p>An R package for Te Whatu Ora giving analysts one route into population health data across Oracle and Snowflake, with spatial analysis built in. Cut code redundancy by around 75%.</p>
+        <p class="card__meta">R · Snowflake · PostGIS</p>
+      </article>
+
+    </div>
+  </section>
+
+  <!-- ─────────── education ─────────── -->
+  <section id="education" class="section">
+    <div class="section__head">
+      <h2>Education</h2>
+      <span class="eyebrow">2007 — 2013</span>
+    </div>
+
+    <ul class="edu">
+      <li>
+        <span class="edu__years">2012 — 2013</span>
+        <span class="edu__degree">MSc in Geography <em>— First Class Honours</em></span>
+        <span class="edu__inst">University of Auckland</span>
+      </li>
+      <li>
+        <span class="edu__years">2011</span>
+        <span class="edu__degree">PgDip in Geography</span>
+        <span class="edu__inst">University of Auckland</span>
+      </li>
+      <li>
+        <span class="edu__years">2007 — 2010</span>
+        <span class="edu__degree">BSc in Geography and Geology</span>
+        <span class="edu__inst">Victoria University of Wellington</span>
+      </li>
+    </ul>
+  </section>
+
+  <!-- ─────────── research ─────────── -->
+  <section id="research" class="section">
+    <div class="section__head">
+      <h2>Published research</h2>
+      <span class="eyebrow">Co-authored</span>
+    </div>
+
+    <ol class="papers">
+      <li>
+        <span class="paper__title">Kids in the City: Children's Use and Experiences of Urban Neighbourhoods in Auckland, New Zealand</span>
+        <span class="paper__authors">Carroll, Witten, Kearns &amp; Donovan</span>
+      </li>
+      <li>
+        <span class="paper__title">Associations between the neighbourhood built environment and out of school physical activity and active travel</span>
+        <span class="paper__authors">Oliver, Mavoa, Badland, Parker, Donovan, Kearns, Lin &amp; Witten</span>
+      </li>
+      <li>
+        <span class="paper__title">Children's Out-of-School Independently Mobile Trips, Active Travel, and Physical Activity</span>
+        <span class="paper__authors">Oliver, Parker, Witten, Mavoa, Badland, Donovan, Chaudhury &amp; Kearns</span>
+      </li>
+      <li>
+        <span class="paper__title">Assessing neighbourhood destination access for children: development of the NDAI-C audit tool</span>
+        <span class="paper__authors">Badland, Donovan, Mavoa, Oliver, Chaudhury &amp; Witten</span>
+      </li>
+      <li>
+        <span class="paper__title">Development of a systems model to visualise the complexity of children's independent mobility</span>
+        <span class="paper__authors">Badland, Kearns, Carroll, Oliver, Mavoa, Donovan, Parker, Chaudhury, Lin &amp; Witten</span>
+      </li>
+    </ol>
+  </section>
+
+  <!-- ─────────── contact ─────────── -->
+  <section id="contact" class="section section--contact">
+    <div class="section__head">
+      <h2>Get in touch</h2>
+      <span class="eyebrow">Auckland · NZST</span>
+    </div>
+
+    <p class="contact__lead">
+      Open to conversations about data platform work, spatial architecture, and anything
+      where the two meet.
+    </p>
+
+    <ul class="contact">
+      <li><span class="contact__label">Email</span><a href="mailto:phil@donovan.family">phil@donovan.family</a></li>
+      <li><span class="contact__label">GitHub</span><a href="https://github.com/phildonovan">github.com/phildonovan</a></li>
+      <li><span class="contact__label">R-universe</span><a href="https://phildonovan.r-universe.dev">phildonovan.r-universe.dev</a></li>
+    </ul>
+  </section>
+
+  <footer class="foot">
+    <span>Phil Donovan — Auckland, New Zealand</span>
+    <span class="foot__datum">NZGD2000 · NZTM2000</span>
+  </footer>
+
+</main>
+
+<script>
+  document.getElementById('print').addEventListener('click', function () {
+    window.print();
+  });
+
+  // Mark the section currently in view in the rail.
+  (function () {
+    var links = Array.prototype.slice.call(document.querySelectorAll('.rail__nav a'));
+    var map = {};
+    links.forEach(function (a) { map[a.getAttribute('href').slice(1)] = a; });
+
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          links.forEach(function (a) { a.removeAttribute('aria-current'); });
+          if (map[e.target.id]) map[e.target.id].setAttribute('aria-current', 'true');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+
+    document.querySelectorAll('.section').forEach(function (s) { obs.observe(s); });
+  })();
+</script>
+
+</body>
+</html>
