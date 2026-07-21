@@ -316,6 +316,8 @@ code {
 
 .hero__affil a:hover { border-bottom-color: var(--signal); }
 
+.hero__affil + .hero__affil { margin-top: 0.25rem; }
+
 .hero__pitch {
   max-width: 60ch;
   margin: 1.9rem 0 0;
