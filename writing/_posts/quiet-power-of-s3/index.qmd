@@ -1,0 +1,105 @@
+---
+title: "The quiet power of S3: why R's simplest object system is so effective"
+description: "Vaccine-specific summaries from one event table, using S3 dispatch rather than a thicker object system."
+author: "Phil Donovan"
+date: "2025-12-24"
+categories: [r, s3]
+---
+
+R has several object systems. For most practical data work, S3 is the one that earns its place: small, already part of the language, and easy to extend.
+
+I have used it in production analytics packages, including immunisation work at Health New Zealand. The appeal is that a generic can carry the name of the question, and the class can carry the rule.
+
+## A vaccination example
+
+Programmes do not share a definition of "covered". In this sketch, COVID-19 is up to date with at least one dose in the last six months. MMR is complete at exactly three doses.
+
+```r
+library(tibble)
+library(lubridate)
+
+vaccination_events <- tribble(
+  ~event_id, ~person_id, ~vaccine,   ~dose_number, ~administration_date,
+  100001,    "P001",     "COVID",    1,            ymd("2025-02-10"),
+  100002,    "P001",     "COVID",    2,            ymd("2025-07-15"),
+  100003,    "P002",     "COVID",    1,            ymd("2024-11-20"),
+  100004,    "P003",     "MMR",      1,            ymd("2010-03-05"),
+  100005,    "P003",     "MMR",      2,            ymd("2010-04-10"),
+  100006,    "P003",     "MMR",      3,            ymd("2011-08-20"),
+  100007,    "P004",     "MMR",      1,            ymd("2015-06-01"),
+  100008,    "P004",     "MMR",      2,            ymd("2015-07-15"),
+  100009,    "P005",     "COVID",    1,            ymd("2025-09-01")
+)
+```
+
+## One generic, two classes
+
+The raw events sit on a base object. Each programme filters those events and answers `vaccinated_people()` with its own rule.
+
+```r
+new_vacc_summary_base <- function(events_df) {
+  structure(
+    list(events = events_df),
+    class = c("vacc_summary_base", "list")
+  )
+}
+
+new_covid_summary <- function(events_df) {
+  obj <- new_vacc_summary_base(events_df |> filter(vaccine == "COVID"))
+  class(obj) <- c("covid_summary", class(obj))
+  obj
+}
+
+vaccinated_people.covid_summary <- function(obj) {
+  recent_cutoff <- today() - months(6)
+
+  obj$events |>
+    filter(administration_date >= recent_cutoff) |>
+    distinct(person_id) |>
+    nrow()
+}
+
+new_mmr_summary <- function(events_df) {
+  obj <- new_vacc_summary_base(events_df |> filter(vaccine == "MMR"))
+  class(obj) <- c("mmr_summary", class(obj))
+  obj
+}
+
+vaccinated_people.mmr_summary <- function(obj) {
+  obj$events |>
+    count(person_id, dose_number) |>
+    count(person_id) |>
+    filter(n == 3) |>
+    nrow()
+}
+
+vaccinated_people <- function(obj) UseMethod("vaccinated_people")
+
+print.vacc_summary_base <- function(x, ...) {
+  cat("Vaccination summary for", class(x)[1], "\n")
+  cat("Total events:", nrow(x$events), "\n")
+  cat("Unique people:", n_distinct(x$events$person_id), "\n")
+  invisible(x)
+}
+```
+
+```r
+covid_sum <- new_covid_summary(vaccination_events)
+mmr_sum   <- new_mmr_summary(vaccination_events)
+
+print(covid_sum)
+print(mmr_sum)
+
+vaccinated_people(covid_sum)
+vaccinated_people(mmr_sum)
+```
+
+On this table the COVID method counts two people with a recent dose, and the MMR method counts one person with three doses. The caller does not branch on the vaccine name.
+
+## Where it paid off
+
+At Health New Zealand, COVID, influenza, and the childhood schedule each had a light S3 class. Generics such as `vaccinated_people()`, `coverage_by_age()`, and `equity_gap()` dispatched to the rule for that programme. Analysts called the generic. The object held the definition, which is the part that changes when policy changes.
+
+The same shape worked at AA Insurance. Motor, home, and contents shared claims data, and product-specific methods implemented `expected_loss()` and `retention_rate()`.
+
+For analytics packages, model output, and reporting objects, S3 is enough. R6, or S7, is there when you need mutable state or private fields. Most of the data work I do does not.
