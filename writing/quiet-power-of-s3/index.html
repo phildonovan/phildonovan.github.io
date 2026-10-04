@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- pagetitle is the plain-text title. The quiet power of S3: why R’s simplest object system is so effective carries inline markup, so it is
+     only safe inside the page body, never in an attribute or the head. -->
+<title>The quiet power of S3: why R’s simplest object system is so effective — Phil Donovan</title>
+<meta name="description" content="Vaccine-specific summaries from one event table, using S3 dispatch rather than a thicker object system.">
+<meta name="author" content="Phil Donovan">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="The quiet power of S3: why R’s simplest object system is so effective">
+<meta property="og:description" content="Vaccine-specific summaries from one event table, using S3 dispatch rather than a thicker object system.">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../styles.css">
+</head>
+<body class="post-page">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<main id="main" class="post">
+
+  <nav class="post__back">
+    <a href="../../">← Phil Donovan</a>
+  </nav>
+
+  <header class="post__head">
+    <p class="eyebrow">
+      <time datetime="2025-12-24">24 December 2025</time>
+      &nbsp;·&nbsp; r · s3
+    </p>
+    <h1 class="post__title">The quiet power of S3: why R’s simplest object system is so effective</h1>
+    
+  </header>
+
+  <article class="prose">
+<p>R has several object systems. For most practical data work, S3 is the one that earns its place: small, already part of the language, and easy to extend.</p><p>I have used it in production analytics packages, including immunisation work at Health New Zealand. The appeal is that a generic can carry the name of the question, and the class can carry the rule.</p><h2 id="a-vaccination-example">A vaccination example</h2><p>Programmes do not share a definition of “covered”. In this sketch, COVID-19 is up to date with at least one dose in the last six months. MMR is complete at exactly three doses.</p><div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(tibble)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(lubridate)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>vaccination_events <span class="ot">&lt;-</span> <span class="fu">tribble</span>(</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>  <span class="sc">~</span>event_id, <span class="sc">~</span>person_id, <span class="sc">~</span>vaccine,   <span class="sc">~</span>dose_number, <span class="sc">~</span>administration_date,</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100001</span>,    <span class="st">&quot;P001&quot;</span>,     <span class="st">&quot;COVID&quot;</span>,    <span class="dv">1</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2025-02-10&quot;</span>),</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100002</span>,    <span class="st">&quot;P001&quot;</span>,     <span class="st">&quot;COVID&quot;</span>,    <span class="dv">2</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2025-07-15&quot;</span>),</span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100003</span>,    <span class="st">&quot;P002&quot;</span>,     <span class="st">&quot;COVID&quot;</span>,    <span class="dv">1</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2024-11-20&quot;</span>),</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100004</span>,    <span class="st">&quot;P003&quot;</span>,     <span class="st">&quot;MMR&quot;</span>,      <span class="dv">1</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2010-03-05&quot;</span>),</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100005</span>,    <span class="st">&quot;P003&quot;</span>,     <span class="st">&quot;MMR&quot;</span>,      <span class="dv">2</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2010-04-10&quot;</span>),</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100006</span>,    <span class="st">&quot;P003&quot;</span>,     <span class="st">&quot;MMR&quot;</span>,      <span class="dv">3</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2011-08-20&quot;</span>),</span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100007</span>,    <span class="st">&quot;P004&quot;</span>,     <span class="st">&quot;MMR&quot;</span>,      <span class="dv">1</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2015-06-01&quot;</span>),</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100008</span>,    <span class="st">&quot;P004&quot;</span>,     <span class="st">&quot;MMR&quot;</span>,      <span class="dv">2</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2015-07-15&quot;</span>),</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>  <span class="dv">100009</span>,    <span class="st">&quot;P005&quot;</span>,     <span class="st">&quot;COVID&quot;</span>,    <span class="dv">1</span>,            <span class="fu">ymd</span>(<span class="st">&quot;2025-09-01&quot;</span>)</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>)</span></code></pre></div><h2 id="one-generic-two-classes">One generic, two classes</h2><p>The raw events sit on a base object. Each programme filters those events and answers <code>vaccinated_people()</code> with its own rule.</p><div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>new_vacc_summary_base <span class="ot">&lt;-</span> <span class="cf">function</span>(events_df) {</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">structure</span>(</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="fu">list</span>(<span class="at">events =</span> events_df),</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">class =</span> <span class="fu">c</span>(<span class="st">&quot;vacc_summary_base&quot;</span>, <span class="st">&quot;list&quot;</span>)</span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>new_covid_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(events_df) {</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>  obj <span class="ot">&lt;-</span> <span class="fu">new_vacc_summary_base</span>(events_df <span class="sc">|</span><span class="er">&gt;</span> <span class="fu">filter</span>(vaccine <span class="sc">==</span> <span class="st">&quot;COVID&quot;</span>))</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">class</span>(obj) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;covid_summary&quot;</span>, <span class="fu">class</span>(obj))</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>  obj</span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>vaccinated_people.covid_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(obj) {</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>  recent_cutoff <span class="ot">&lt;-</span> <span class="fu">today</span>() <span class="sc">-</span> <span class="fu">months</span>(<span class="dv">6</span>)</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>  obj<span class="sc">$</span>events <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(administration_date <span class="sc">&gt;=</span> recent_cutoff) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">distinct</span>(person_id) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nrow</span>()</span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-23"><a href="#cb2-23" aria-hidden="true" tabindex="-1"></a>new_mmr_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(events_df) {</span>
+<span id="cb2-24"><a href="#cb2-24" aria-hidden="true" tabindex="-1"></a>  obj <span class="ot">&lt;-</span> <span class="fu">new_vacc_summary_base</span>(events_df <span class="sc">|</span><span class="er">&gt;</span> <span class="fu">filter</span>(vaccine <span class="sc">==</span> <span class="st">&quot;MMR&quot;</span>))</span>
+<span id="cb2-25"><a href="#cb2-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">class</span>(obj) <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="st">&quot;mmr_summary&quot;</span>, <span class="fu">class</span>(obj))</span>
+<span id="cb2-26"><a href="#cb2-26" aria-hidden="true" tabindex="-1"></a>  obj</span>
+<span id="cb2-27"><a href="#cb2-27" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-28"><a href="#cb2-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-29"><a href="#cb2-29" aria-hidden="true" tabindex="-1"></a>vaccinated_people.mmr_summary <span class="ot">&lt;-</span> <span class="cf">function</span>(obj) {</span>
+<span id="cb2-30"><a href="#cb2-30" aria-hidden="true" tabindex="-1"></a>  obj<span class="sc">$</span>events <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb2-31"><a href="#cb2-31" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(person_id, dose_number) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb2-32"><a href="#cb2-32" aria-hidden="true" tabindex="-1"></a>    <span class="fu">count</span>(person_id) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb2-33"><a href="#cb2-33" aria-hidden="true" tabindex="-1"></a>    <span class="fu">filter</span>(n <span class="sc">==</span> <span class="dv">3</span>) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb2-34"><a href="#cb2-34" aria-hidden="true" tabindex="-1"></a>    <span class="fu">nrow</span>()</span>
+<span id="cb2-35"><a href="#cb2-35" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb2-36"><a href="#cb2-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-37"><a href="#cb2-37" aria-hidden="true" tabindex="-1"></a>vaccinated_people <span class="ot">&lt;-</span> <span class="cf">function</span>(obj) <span class="fu">UseMethod</span>(<span class="st">&quot;vaccinated_people&quot;</span>)</span>
+<span id="cb2-38"><a href="#cb2-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-39"><a href="#cb2-39" aria-hidden="true" tabindex="-1"></a>print.vacc_summary_base <span class="ot">&lt;-</span> <span class="cf">function</span>(x, ...) {</span>
+<span id="cb2-40"><a href="#cb2-40" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Vaccination summary for&quot;</span>, <span class="fu">class</span>(x)[<span class="dv">1</span>], <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-41"><a href="#cb2-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Total events:&quot;</span>, <span class="fu">nrow</span>(x<span class="sc">$</span>events), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-42"><a href="#cb2-42" aria-hidden="true" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;Unique people:&quot;</span>, <span class="fu">n_distinct</span>(x<span class="sc">$</span>events<span class="sc">$</span>person_id), <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-43"><a href="#cb2-43" aria-hidden="true" tabindex="-1"></a>  <span class="fu">invisible</span>(x)</span>
+<span id="cb2-44"><a href="#cb2-44" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>covid_sum <span class="ot">&lt;-</span> <span class="fu">new_covid_summary</span>(vaccination_events)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>mmr_sum   <span class="ot">&lt;-</span> <span class="fu">new_mmr_summary</span>(vaccination_events)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(covid_sum)</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(mmr_sum)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="fu">vaccinated_people</span>(covid_sum)</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a><span class="fu">vaccinated_people</span>(mmr_sum)</span></code></pre></div><p>On this table the COVID method counts two people with a recent dose, and the MMR method counts one person with three doses. The caller does not branch on the vaccine name.</p><h2 id="where-it-paid-off">Where it paid off</h2><p>At Health New Zealand, COVID, influenza, and the childhood schedule each had a light S3 class. Generics such as <code>vaccinated_people()</code>, <code>coverage_by_age()</code>, and <code>equity_gap()</code> dispatched to the rule for that programme. Analysts called the generic. The object held the definition, which is the part that changes when policy changes.</p><p>The same shape worked at AA Insurance. Motor, home, and contents shared claims data, and product-specific methods implemented <code>expected_loss()</code> and <code>retention_rate()</code>.</p><p>For analytics packages, model output, and reporting objects, S3 is enough. R6, or S7, is there when you need mutable state or private fields. Most of the data work I do does not.</p>
+  </article>
+
+  <footer class="post__foot">
+    <p>
+      Written by Phil Donovan. More at
+      <a href="../../">phildonovan.github.io</a>.
+    </p>
+    <p class="post__stale">
+      This is an archived post — it reflects what was current when it was written.
+    </p>
+  </footer>
+
+</main>
+
+</body>
+</html>

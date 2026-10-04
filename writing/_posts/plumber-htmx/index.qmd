@@ -1,0 +1,59 @@
+---
+title: "Serving R charts with Plumber and HTMX"
+description: "Interactive Highcharts from R, returned as HTML by Plumber and swapped in with HTMX."
+author: "Phil Donovan"
+date: "2025-12-24"
+categories: [r, plumber, htmx]
+---
+
+Plumber exposes R functions as HTTP endpoints. HTMX swaps a fragment of HTML into the page when an endpoint responds. Pair them with `highcharter` and a chart can be drawn in R and dropped into the page without a Shiny server.
+
+This note uses the `mtcars` scatter of weight against miles per gallon, coloured by cylinders. The same figure can be drawn in the browser. The endpoint below is what R would return for HTMX to insert.
+
+```r
+library(plumber)
+library(highcharter)
+library(dplyr)
+library(htmltools)
+
+#* Serve interactive mtcars scatter chart
+#* @get /mtcars-chart
+#* @serializer html
+function() {
+  chart <- mtcars |>
+    mutate(cyl = as.factor(cyl)) |>
+    hchart(
+      "scatter",
+      hcaes(x = wt, y = mpg, group = cyl),
+      name = cyl
+    ) |>
+    hc_title(text = "MPG vs Weight — mtcars dataset") |>
+    hc_subtitle(text = "Served live from R via Plumber") |>
+    hc_xAxis(title = list(text = "Weight (1000 lbs)")) |>
+    hc_yAxis(title = list(text = "Miles per Gallon")) |>
+    hc_tooltip(pointFormat = "<b>{point.name}</b><br>Weight: {point.wt}<br>MPG: {point.mpg}<br>Cyl: {point.cyl}") |>
+    hc_chart(zoomType = "xy") |>
+    hc_add_theme(hc_theme_smpl())
+
+  tagList(
+    tags$div(id = "mtcars-chart", style = "width:100%; height:500px;"),
+    htmlwidgets::as_widget(chart)
+  ) |> as.character()
+}
+```
+
+The page asks for that fragment on load:
+
+```html
+<div
+  hx-get="https://your-api.example.com/mtcars-chart"
+  hx-trigger="load"
+  hx-swap="innerHTML"
+>
+  Loading chart from R...
+</div>
+```
+
+R does the data work and renders the chart. Plumber returns HTML. HTMX replaces the container when the chart is ready, or when a filter changes and the same endpoint is called again. The front of the page stays small: HTMX, and whatever else the layout needs.
+
+It deploys like any other R API. Docker is enough.

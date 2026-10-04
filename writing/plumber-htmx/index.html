@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="en-NZ">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- pagetitle is the plain-text title. Serving R charts with Plumber and HTMX carries inline markup, so it is
+     only safe inside the page body, never in an attribute or the head. -->
+<title>Serving R charts with Plumber and HTMX — Phil Donovan</title>
+<meta name="description" content="Interactive Highcharts from R, returned as HTML by Plumber and swapped in with HTMX.">
+<meta name="author" content="Phil Donovan">
+
+<meta property="og:type" content="article">
+<meta property="og:title" content="Serving R charts with Plumber and HTMX">
+<meta property="og:description" content="Interactive Highcharts from R, returned as HTML by Plumber and swapped in with HTMX.">
+<meta name="twitter:card" content="summary">
+
+<link rel="icon" href="../../favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../styles.css">
+</head>
+<body class="post-page">
+
+<a class="skip" href="#main">Skip to content</a>
+
+<main id="main" class="post">
+
+  <nav class="post__back">
+    <a href="../../">← Phil Donovan</a>
+  </nav>
+
+  <header class="post__head">
+    <p class="eyebrow">
+      <time datetime="2025-12-24">24 December 2025</time>
+      &nbsp;·&nbsp; r · plumber · htmx
+    </p>
+    <h1 class="post__title">Serving R charts with Plumber and HTMX</h1>
+    
+  </header>
+
+  <article class="prose">
+<p>Plumber exposes R functions as HTTP endpoints. HTMX swaps a fragment of HTML into the page when an endpoint responds. Pair them with <code>highcharter</code> and a chart can be drawn in R and dropped into the page without a Shiny server.</p><p>This note uses the <code>mtcars</code> scatter of weight against miles per gallon, coloured by cylinders. The same figure can be drawn in the browser. The endpoint below is what R would return for HTMX to insert.</p><div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(plumber)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(highcharter)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(htmltools)</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="co">#* Serve interactive mtcars scatter chart</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="co">#* @get /mtcars-chart</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a><span class="co">#* @serializer html</span></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="cf">function</span>() {</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>  chart <span class="ot">&lt;-</span> mtcars <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    <span class="fu">mutate</span>(<span class="at">cyl =</span> <span class="fu">as.factor</span>(cyl)) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hchart</span>(</span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>      <span class="st">&quot;scatter&quot;</span>,</span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>      <span class="fu">hcaes</span>(<span class="at">x =</span> wt, <span class="at">y =</span> mpg, <span class="at">group =</span> cyl),</span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">name =</span> cyl</span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hc_title</span>(<span class="at">text =</span> <span class="st">&quot;MPG vs Weight — mtcars dataset&quot;</span>) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hc_subtitle</span>(<span class="at">text =</span> <span class="st">&quot;Served live from R via Plumber&quot;</span>) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hc_xAxis</span>(<span class="at">title =</span> <span class="fu">list</span>(<span class="at">text =</span> <span class="st">&quot;Weight (1000 lbs)&quot;</span>)) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hc_yAxis</span>(<span class="at">title =</span> <span class="fu">list</span>(<span class="at">text =</span> <span class="st">&quot;Miles per Gallon&quot;</span>)) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-21"><a href="#cb1-21" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hc_tooltip</span>(<span class="at">pointFormat =</span> <span class="st">&quot;&lt;b&gt;{point.name}&lt;/b&gt;&lt;br&gt;Weight: {point.wt}&lt;br&gt;MPG: {point.mpg}&lt;br&gt;Cyl: {point.cyl}&quot;</span>) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-22"><a href="#cb1-22" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hc_chart</span>(<span class="at">zoomType =</span> <span class="st">&quot;xy&quot;</span>) <span class="sc">|</span><span class="er">&gt;</span></span>
+<span id="cb1-23"><a href="#cb1-23" aria-hidden="true" tabindex="-1"></a>    <span class="fu">hc_add_theme</span>(<span class="fu">hc_theme_smpl</span>())</span>
+<span id="cb1-24"><a href="#cb1-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-25"><a href="#cb1-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tagList</span>(</span>
+<span id="cb1-26"><a href="#cb1-26" aria-hidden="true" tabindex="-1"></a>    tags<span class="sc">$</span><span class="fu">div</span>(<span class="at">id =</span> <span class="st">&quot;mtcars-chart&quot;</span>, <span class="at">style =</span> <span class="st">&quot;width:100%; height:500px;&quot;</span>),</span>
+<span id="cb1-27"><a href="#cb1-27" aria-hidden="true" tabindex="-1"></a>    htmlwidgets<span class="sc">::</span><span class="fu">as_widget</span>(chart)</span>
+<span id="cb1-28"><a href="#cb1-28" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">|</span><span class="er">&gt;</span> <span class="fu">as.character</span>()</span>
+<span id="cb1-29"><a href="#cb1-29" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><p>The page asks for that fragment on load:</p><div class="sourceCode" id="cb2"><pre class="sourceCode html"><code class="sourceCode html"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;div</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ot">  hx-get=</span><span class="st">&quot;https://your-api.example.com/mtcars-chart&quot;</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="ot">  hx-trigger=</span><span class="st">&quot;load&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="ot">  hx-swap=</span><span class="st">&quot;innerHTML&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a><span class="kw">&gt;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>  Loading chart from R...</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="kw">&lt;/div&gt;</span></span></code></pre></div><p>R does the data work and renders the chart. Plumber returns HTML. HTMX replaces the container when the chart is ready, or when a filter changes and the same endpoint is called again. The front of the page stays small: HTMX, and whatever else the layout needs.</p><p>It deploys like any other R API. Docker is enough.</p>
+  </article>
+
+  <footer class="post__foot">
+    <p>
+      Written by Phil Donovan. More at
+      <a href="../../">phildonovan.github.io</a>.
+    </p>
+    <p class="post__stale">
+      This is an archived post — it reflects what was current when it was written.
+    </p>
+  </footer>
+
+</main>
+
+</body>
+</html>
